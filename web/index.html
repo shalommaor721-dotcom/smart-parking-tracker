@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Galactic Spaceport - Smart Parking</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>🚀 Galactic Spaceport <small>Smart Parking Tracker</small></h1>
+    <div class="header-actions">
+      <button id="theme-btn" title="Toggle Dark Mode">🌙 Dark Mode</button>
+    </div>
+  </header>
+
+  <div id="full-alert" class="alert hidden">
+    ⚠️ FULL CAPACITY ALERT - no free docking bays! New ships are being turned away.
+  </div>
+
+  <main>
+    <section class="stats">
+      <div class="card"><span class="label">Docked now</span><span id="stat-occupied" class="value">-</span></div>
+      <div class="card"><span class="label">Free bays</span><span id="stat-free" class="value">-</span></div>
+      <div class="card"><span class="label">Total entries</span><span id="stat-total" class="value">-</span></div>
+      <div class="card"><span class="label">Revenue (₪)</span><span id="stat-revenue" class="value">-</span></div>
+    </section>
+
+    <div class="capacity-bar"><div id="capacity-fill"></div></div>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Ships in the spaceport</h2>
+        <button id="sim-btn" title="Simulate the IoT camera sending a plate">📷 Simulate camera</button>
+      </div>
+      <table>
+        <thead>
+          <tr><th>License plate</th><th>Entered</th><th>Time</th><th>Fee (₪)</th><th></th></tr>
+        </thead>
+        <tbody id="cars-body"></tbody>
+      </table>
+      <p id="empty-msg" class="muted hidden">The spaceport is empty. Waiting for the camera...</p>
+    </section>
+
+    <section class="panel">
+      <h2>Event log</h2>
+      <ul id="events"></ul>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+  <div id="easter" class="easter hidden">🛸 You found the Easter egg! May the Force be with your parking.</div>
+
+  <script src="app.js"></script>
+</body>
+</html>

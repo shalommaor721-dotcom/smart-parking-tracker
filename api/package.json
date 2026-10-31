@@ -1,0 +1,14 @@
+{
+  "name": "smart-parking-api",
+  "version": "1.0.0",
+  "description": "API for the Smart Parking License Plate Tracker",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.22.3",
+    "redis": "^4.7.1"
+  }
+}

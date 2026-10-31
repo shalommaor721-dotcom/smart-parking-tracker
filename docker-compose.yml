@@ -1,0 +1,45 @@
+services:
+  # ---------- Redis: DB with persistence ----------
+  redis:
+    image: redis:7-alpine
+    container_name: parking-redis
+    # appendonly yes = AOF: every write is logged to /data so nothing is lost on restart
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  # ---------- API: Node.js + Express ----------
+  api:
+    build: ./api
+    image: smart-parking-api
+    container_name: parking-api
+    environment:
+      REDIS_URL: redis://redis:6379
+      CAPACITY: "8"
+      PRICE_PER_HOUR: "12"
+    depends_on:
+      redis:
+        condition: service_healthy
+    ports:
+      - "3000:3000" # exposed so the IoT camera / curl can POST directly
+    restart: unless-stopped
+
+  # ---------- Web: Nginx serving the dashboard ----------
+  web:
+    build: ./web
+    image: smart-parking-web
+    container_name: parking-web
+    depends_on:
+      - api
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+
+volumes:
+  redis-data:
