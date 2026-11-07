@@ -1,45 +1,80 @@
+# הקובץ הזה אומר ל-Docker אילו שלוש תוכניות להפעיל ואיך לחבר ביניהן.
+# פקודה אחת מפעילה את הכול:   docker compose up --build -d
+# פקודה אחת מכבה את הכול:      docker compose down
+
+# רשימת התוכניות (שירותים) שמפעילים
 services:
-  # ---------- Redis: DB with persistence ----------
+
+  # התוכנית הראשונה: מסד הנתונים. כאן נשמרים הרכבים שנמצאים בחניון.
   redis:
+    # משתמשים בתוכנית מוכנה מהאינטרנט ולא כותבים אותה בעצמנו. הגרסה "alpine" קטנה ומהירה
     image: redis:7-alpine
+    # השם שיופיע בדוקר לתוכנית הזאת
     container_name: parking-redis
-    # appendonly yes = AOF: every write is logged to /data so nothing is lost on restart
+    # פקודת ההפעלה. appendonly yes = לכתוב כל שינוי לקובץ בדיסק.
+    # בלי זה, מסד הנתונים שומר רק בזיכרון, וכשהוא נכבה הכול נמחק.
     command: ["redis-server", "--appendonly", "yes"]
+    # מחברים תיקייה קבועה (redis-data) לתיקייה /data שבתוך התוכנית.
+    # התיקייה הזאת נשמרת בחוץ, ולכן הנתונים לא נמחקים כשמכבים ומדליקים.
     volumes:
       - redis-data:/data
+    # בדיקת בריאות: Docker בודק כל כמה שניות אם מסד הנתונים באמת מוכן לעבודה
     healthcheck:
+      # הבדיקה: שולחים לו "ping", ואם הוא עונה הוא מוכן
       test: ["CMD", "redis-cli", "ping"]
+      # בודקים כל 5 שניות
       interval: 5s
+      # אם אין תשובה תוך 3 שניות, הבדיקה נחשבת כשלון
       timeout: 3s
+      # מנסים עד 10 פעמים לפני שמוותרים
       retries: 10
+    # אם התוכנית קורסת, Docker מפעיל אותה שוב אוטומטית (אלא אם עצרנו אותה בעצמנו)
     restart: unless-stopped
 
-  # ---------- API: Node.js + Express ----------
+  # התוכנית השנייה: השרת שמקבל לוחיות מהמצלמה ועונה ללוח הבקרה
   api:
+    # בונים אותה בעצמנו לפי ההוראות שבקובץ Dockerfile שבתיקייה api
     build: ./api
+    # השם שיקבל התוצר שנבנה
     image: smart-parking-api
+    # השם שיופיע בדוקר לתוכנית הזאת
     container_name: parking-api
+    # הגדרות שהקוד של השרת קורא כשהוא מתחיל
     environment:
+      # הכתובת של מסד הנתונים. המילה redis היא השם של התוכנית שלמעלה, ו-Docker יודע למצוא אותה לפי השם
       REDIS_URL: redis://redis:6379
+      # כמה מקומות חניה יש בחניון
       CAPACITY: "8"
+      # כמה עולה שעת חניה בשקלים
       PRICE_PER_HOUR: "12"
+    # השרת יתחיל לעבוד רק אחרי שמסד הנתונים עבר את בדיקת הבריאות ומוכן
     depends_on:
       redis:
         condition: service_healthy
+    # פותחים את פורט 3000 במחשב שלנו, כדי שאפשר יהיה לשלוח לשרת לוחיות ישירות (למשל מהמצלמה)
     ports:
-      - "3000:3000" # exposed so the IoT camera / curl can POST directly
+      - "3000:3000"
+    # אם התוכנית קורסת, מפעילים אותה שוב
     restart: unless-stopped
 
-  # ---------- Web: Nginx serving the dashboard ----------
+  # התוכנית השלישית: השרת שמציג את לוח הבקרה בדפדפן
   web:
+    # בונים אותה בעצמנו לפי ההוראות שבקובץ Dockerfile שבתיקייה web
     build: ./web
+    # השם שיקבל התוצר שנבנה
     image: smart-parking-web
+    # השם שיופיע בדוקר לתוכנית הזאת
     container_name: parking-web
+    # מפעילים אותה אחרי שהשרת של הנתונים (api) כבר עלה
     depends_on:
       - api
+    # כשנכנסים בדפדפן לכתובת localhost:8080, Docker מעביר אותנו לפורט 80 שבתוך התוכנית
     ports:
       - "8080:80"
+    # אם התוכנית קורסת, מפעילים אותה שוב
     restart: unless-stopped
 
+# הגדרת התיקייה הקבועה לשמירת הנתונים.
+# היא נשארת גם אחרי docker compose down, ונמחקת רק עם docker compose down -v
 volumes:
   redis-data:

@@ -1,61 +1,97 @@
+# הקובץ הזה אומר ל-GitHub מה לבדוק ולעשות אוטומטית בכל פעם שמעלים קוד.
+# יש בו שתי עבודות:
+#   1. build:   בונה את הפרויקט ובודק שהוא עובד
+#   2. publish: מעלה את התוכניות המוכנות לאחסון של GitHub (זה הבונוס)
+
+# השם שמופיע בלשונית Actions באתר
 name: Docker Build & Publish
 
+# מתי העבודה הזאת מתחילה
 on:
+  # כשמעלים קוד
   push:
+    # לכל ענף (שני כוכביות אומרות "כל ענף")
     branches: ["**"]
+    # וגם כשמעלים תג גרסה שמתחיל באות v (למשל v1.0.0)
     tags: ["v*"]
+  # וגם כשפותחים בקשה למזג שינויים, כדי לבדוק אותם לפני המיזוג
   pull_request:
 
+# משתנה שנשתמש בו בכמה מקומות: הכתובת של האחסון של GitHub לתוכניות מוכנות
 env:
   REGISTRY: ghcr.io
 
+# רשימת העבודות
 jobs:
-  # ---- CI: verify that everything builds on EVERY push ----
+
+  # ---- העבודה הראשונה: לבדוק שהכול נבנה ועובד ----
   build:
+    # המחשב ש-GitHub נותן לנו להריץ עליו: מחשב לינוקס
     runs-on: ubuntu-latest
+    # השלבים, אחד אחרי השני
     steps:
+      # שלב 1: מוריד את הקוד של הפרויקט למחשב. בלי זה אין קבצים לעבוד איתם
       - name: Checkout
         uses: actions/checkout@v4
 
+      # שלב 2: בודק שקובץ docker-compose.yml כתוב נכון. הדגל -q אומר להדפיס רק אם יש שגיאה
       - name: Validate docker-compose.yml
         run: docker compose config -q
 
+      # שלב 3: בונה את כל התוכניות. אם יש טעות באחד הקבצים, העבודה נכשלת כאן
       - name: Build all images with Docker Compose
         run: docker compose build
 
+      # שלב 4: בדיקה קצרה שהמערכת באמת עובדת: מפעילים אותה ופונים אליה
       - name: Smoke test - start the stack and call the API
         run: |
+          # מפעילים את כל המערכת ברקע
           docker compose up -d
+          # מנסים עד 20 פעמים, ובין ניסיון לניסיון מחכים 2 שניות, עד שהשרת עונה "אני חי".
+          # ברגע שהוא עונה, עוצרים את הלולאה
           for i in $(seq 1 20); do
             curl -sf http://localhost:3000/api/health && break
             sleep 2
           done
+          # שולחים לשרת לוחית לבדיקה, כמו שהמצלמה הייתה עושה
           curl -sf -X POST http://localhost:3000/api/plates \
             -H "Content-Type: application/json" -d '{"plate":"CI-TEST-1"}'
+          # בודקים שגם הדרך דרך Nginx עובדת (כתובת הנתונים והדף הראשי)
           curl -sf http://localhost:8080/api/plates
           curl -sf http://localhost:8080/ > /dev/null
+          # מכבים ומנקים הכול, כולל הנתונים שנשמרו בבדיקה
           docker compose down -v
 
-  # ---- BONUS (+10): publish images to GitHub Container Registry ----
+  # ---- העבודה השנייה (הבונוס): להעלות את התוכניות המוכנות לאחסון של GitHub ----
   publish:
+    # מתחילה רק אחרי שהעבודה הראשונה הצליחה
     needs: build
+    # תנאי: רק כשמעלים קוד (לא בבקשת מיזוג), ורק לענף הראשי או לתג גרסה.
+    # ככה ענפי ניסוי לא מעלים תוכניות לאחסון
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
     runs-on: ubuntu-latest
+    # ההרשאות שהעבודה מקבלת: לקרוא את הקוד, ולכתוב (להעלות) תוכניות לאחסון.
+    # בלי ההרשאה השנייה אי אפשר להעלות
     permissions:
       contents: read
-      packages: write # lets GITHUB_TOKEN push to ghcr.io
+      packages: write
+    # מריצים את אותה עבודה פעמיים במקביל, פעם לכל תוכנית: api ו-web
     strategy:
       matrix:
         include:
+          # הראשונה: תוכנית השרת, מהתיקייה api
           - name: api
             context: ./api
+          # השנייה: תוכנית לוח הבקרה, מהתיקייה web
           - name: web
             context: ./web
     steps:
+      # שלב 1: מוריד את הקוד למחשב
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 1. Secure login to ghcr.io using the built-in GITHUB_TOKEN (no manual secrets)
+      # שלב 2 (הבונוס, סעיף 1): התחברות מאובטחת לאחסון של GitHub.
+      # הסיסמה נוצרת אוטומטית בכל הרצה, ולכן לא צריך לשמור אותה או לשתף אותה עם אף אחד
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -63,7 +99,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # 2. Automatic tagging: latest, short commit SHA and the version tag (v1.0.0 -> 1.0.0)
+      # שלב 3 (הבונוס, סעיף 2): יצירת שמות (תגים) לתוכנית באופן אוטומטי. נוצרים שלושה סוגים:
+      #   latest      = הגרסה האחרונה (רק מהענף הראשי)
+      #   sha-xxxxxxx = קוד קצר שמזהה את השינוי המדויק שבנינו
+      #   1.0.0       = מספר גרסה, כשמעלים תג כמו v1.0.0
       - name: Generate image tags
         id: meta
         uses: docker/metadata-action@v5
@@ -74,7 +113,7 @@ jobs:
             type=sha,format=short
             type=semver,pattern={{version}}
 
-      # 3. Build and push the image
+      # שלב 4 (הבונוס, סעיף 3): בונים את התוכנית ומעלים אותה לאחסון עם כל השמות שנוצרו
       - name: Build and push
         uses: docker/build-push-action@v6
         with:

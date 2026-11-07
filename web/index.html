@@ -1,56 +1,86 @@
 <!DOCTYPE html>
+<!--
+  זה הדף הראשי של לוח הבקרה: השלד שמגדיר מה יש על המסך ובאיזה סדר.
+  הדף כמעט ריק מנתונים. המספרים, הטבלה והיומן מתמלאים על ידי הקובץ app.js,
+  שמוצא כל רכיב לפי השם (id) שלו.
+-->
 <html lang="en" data-theme="light">
 <head>
+  <!-- מגדיר שהדף תומך בכל האותיות, כולל עברית -->
   <meta charset="UTF-8">
+  <!-- גורם לדף להתאים את עצמו לרוחב של טלפון -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- הכותרת שמופיעה בלשונית של הדפדפן -->
   <title>Galactic Spaceport - Smart Parking</title>
+  <!-- מחבר את קובץ העיצוב -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- החלק העליון של הדף: הכותרת וכפתור המצב הכהה -->
   <header>
+    <!-- הכותרת הראשית -->
     <h1>🚀 Galactic Spaceport <small>Smart Parking Tracker</small></h1>
     <div class="header-actions">
+      <!-- הכפתור שמחליף בין מצב בהיר למצב כהה -->
       <button id="theme-btn" title="Toggle Dark Mode">🌙 Dark Mode</button>
     </div>
   </header>
 
+  <!-- ההתראה האדומה "החניון מלא". היא מוסתרת (hidden), וקובץ app.js מציג אותה רק כשהחניון מלא -->
   <div id="full-alert" class="alert hidden">
     ⚠️ FULL CAPACITY ALERT - no free docking bays! New ships are being turned away.
   </div>
 
+  <!-- התוכן הראשי של הדף -->
   <main>
+    <!-- ארבעה כרטיסים עם מספרים. המקף הוא ערך זמני, ו-app.js מחליף אותו במספר האמיתי -->
     <section class="stats">
+      <!-- כמה רכבים בחניון עכשיו -->
       <div class="card"><span class="label">Docked now</span><span id="stat-occupied" class="value">-</span></div>
+      <!-- כמה מקומות פנויים -->
       <div class="card"><span class="label">Free bays</span><span id="stat-free" class="value">-</span></div>
+      <!-- כמה רכבים נכנסו בסך הכול -->
       <div class="card"><span class="label">Total entries</span><span id="stat-total" class="value">-</span></div>
+      <!-- כמה כסף נגבה -->
       <div class="card"><span class="label">Revenue (₪)</span><span id="stat-revenue" class="value">-</span></div>
     </section>
 
+    <!-- פס שמראה כמה החניון מלא. הרוחב והצבע של הפס הפנימי נקבעים על ידי app.js -->
     <div class="capacity-bar"><div id="capacity-fill"></div></div>
 
+    <!-- הקופסה עם טבלת הרכבים -->
     <section class="panel">
       <div class="panel-head">
         <h2>Ships in the spaceport</h2>
+        <!-- כפתור שמדמה מצלמה: שולח לשרת לוחית אקראית -->
         <button id="sim-btn" title="Simulate the IoT camera sending a plate">📷 Simulate camera</button>
       </div>
       <table>
+        <!-- שורת הכותרות של הטבלה. העמודה האחרונה ריקה כי בה נמצא כפתור השחרור -->
         <thead>
           <tr><th>License plate</th><th>Entered</th><th>Time</th><th>Fee (₪)</th><th></th></tr>
         </thead>
+        <!-- גוף הטבלה ריק בכוונה. app.js יוצר בו שורה לכל רכב -->
         <tbody id="cars-body"></tbody>
       </table>
+      <!-- הודעה שמוצגת רק כשאין אף רכב בחניון -->
       <p id="empty-msg" class="muted hidden">The spaceport is empty. Waiting for the camera...</p>
     </section>
 
+    <!-- הקופסה עם יומן האירועים האחרונים -->
     <section class="panel">
       <h2>Event log</h2>
+      <!-- הרשימה ריקה בכוונה. app.js ממלא אותה באירועים -->
       <ul id="events"></ul>
     </section>
   </main>
 
+  <!-- הודעה קטנה שקופצת לכמה שניות בתחתית המסך (הצלחה או שגיאה) -->
   <div id="toast" class="toast hidden"></div>
+  <!-- ההודעה של ההפתעה החבויה. מוסתרת עד שמקלידים את הרצף הסודי -->
   <div id="easter" class="easter hidden">🛸 You found the Easter egg! May the Force be with your parking.</div>
 
+  <!-- טוענים את קובץ הקוד בסוף הדף, כדי שכל הרכיבים שלמעלה כבר יהיו קיימים כשהוא מתחיל לרוץ -->
   <script src="app.js"></script>
 </body>
 </html>

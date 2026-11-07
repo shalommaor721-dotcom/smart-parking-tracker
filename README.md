@@ -5,7 +5,7 @@
 A smart parking lot system. An IoT camera reads license plates and sends them to our API (`HTTP POST`).
 The guard's dashboard polls the API with JavaScript and shows the cars in real time - no page refresh.
 
-> **Team:** מאור שלום אורן זנו  &nbsp;|&nbsp; **Theme:** Galactic Spaceport (cars are "ships", parking spots are "docking bays")
+> **Team:** _fill in names_ &nbsp;|&nbsp; **Theme:** Galactic Spaceport (cars are "ships", parking spots are "docking bays")
 
 ## Architecture
 

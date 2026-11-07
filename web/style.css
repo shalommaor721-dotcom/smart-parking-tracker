@@ -1,77 +1,127 @@
+/* זה קובץ העיצוב של לוח הבקרה: צבעים, גדלים ומיקומים.
+   הרעיון המרכזי: הצבעים מוגדרים פעם אחת בראש הקובץ כמשתנים (שמות שמתחילים ב-שני מקפים),
+   וכל שאר הקובץ משתמש בהם. ככה המעבר למצב כהה הוא רק החלפה של הצבעים האלה. */
+
+/* צבעי המצב הבהיר (ברירת המחדל) */
 :root {
+  /* צבע הרקע של הדף, צבע הכרטיסים, צבע הטקסט, וצבע הטקסט הבהיר */
   --bg: #f3f5fa; --card: #ffffff; --text: #1b2236; --muted: #6b7490;
+  /* צבע ראשי, צבע הקווים, ירוק, כתום ואדום */
   --accent: #4f46e5; --border: #dfe3ee; --ok: #16a34a; --warn: #f59e0b; --bad: #dc2626;
 }
+/* כשהדף מסומן כמצב כהה, הצבעים האלה מחליפים את הקודמים */
 [data-theme="dark"] {
   --bg: #0b1020; --card: #151c33; --text: #e6e9f5; --muted: #8e97b8;
   --accent: #818cf8; --border: #263052;
 }
 
+/* גורם לכך שהרווחים והמסגרות נכללים בגודל של כל רכיב, וזה מקל על חישובי הגדלים */
 * { box-sizing: border-box; }
+/* העיצוב של כל הדף */
 body {
+  /* מסירים את הרווח שהדפדפן מוסיף כברירת מחדל, ובוחרים גופן */
   margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-  background: var(--bg); color: var(--text); transition: background .3s, color .3s;
+  /* צבע הרקע וצבע הטקסט */
+  background: var(--bg); color: var(--text);
+  /* גורם למעבר בין מצב בהיר לכהה להיות הדרגתי ולא פתאומי */
+  transition: background .3s, color .3s;
 }
+/* החלק העליון של הדף: הכותרת והכפתור, זה ליד זה */
 header {
   display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
   padding: 16px 24px; background: var(--card); border-bottom: 1px solid var(--border);
 }
+/* הכותרת הראשית */
 h1 { margin: 0; font-size: 1.4rem; }
+/* הטקסט הקטן ליד הכותרת הראשית */
 h1 small { color: var(--muted); font-weight: 400; font-size: .8rem; margin-left: 8px; }
+/* כותרות של הקופסאות */
 h2 { margin: 0 0 12px; font-size: 1.05rem; }
+/* התוכן הראשי: ברוחב מוגבל ומרוכז באמצע, כדי שיהיה קריא גם במסך רחב */
 main { max-width: 960px; margin: 0 auto; padding: 20px 16px 60px; }
 
+/* העיצוב של כל הכפתורים */
 button {
   cursor: pointer; border: 1px solid var(--border); background: var(--card); color: var(--text);
   padding: 8px 14px; border-radius: 8px; font-size: .9rem;
 }
+/* כשהעכבר מעל כפתור, המסגרת שלו הופכת לצבע הראשי */
 button:hover { border-color: var(--accent); }
+/* כפתור השחרור בולט יותר: צבע ראשי בלי מסגרת */
 button.release { background: var(--accent); color: #fff; border: none; padding: 5px 12px; }
 
+/* ההתראה האדומה "החניון מלא" */
 .alert {
   background: var(--bad); color: #fff; text-align: center; padding: 12px; font-weight: 600;
+  /* ההתראה מהבהבת בעדינות כדי למשוך תשומת לב */
   animation: pulse 1s infinite alternate;
 }
+/* ההגדרה של ההבהוב: מעבר בין שקיפות מלאה לשקיפות חלקית */
 @keyframes pulse { from { opacity: 1; } to { opacity: .7; } }
+/* מסתיר רכיב לגמרי. app.js מוסיף ומסיר את השם הזה כדי להציג ולהסתיר דברים */
 .hidden { display: none !important; }
 
+/* אזור ארבעת הכרטיסים: מסדר אותם בשורה, וכשהמסך צר הם יורדים לשורה הבאה */
 .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+/* כל כרטיס: קופסה עם מסגרת וקצוות מעוגלים */
 .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; }
+/* הכיתוב הקטן שמעל המספר */
 .label { color: var(--muted); font-size: .8rem; }
+/* המספר הגדול בכרטיס */
 .value { font-size: 1.8rem; font-weight: 700; margin-top: 4px; }
 
+/* המסילה האפורה של פס המילוי */
 .capacity-bar { height: 10px; background: var(--border); border-radius: 6px; margin: 16px 0; overflow: hidden; }
+/* החלק הצבעוני שמתמלא. app.js קובע את הרוחב שלו באחוזים, וה-transition גורם לו לגדול בצורה חלקה */
 #capacity-fill { height: 100%; width: 0; background: var(--ok); transition: width .4s, background .4s; }
+/* כתום כשהחניון מלא מעל 75% */
 #capacity-fill.warn { background: var(--warn); }
+/* אדום כשהחניון מלא לגמרי */
 #capacity-fill.full { background: var(--bad); }
 
+/* הקופסאות הגדולות שמכילות את הטבלה ואת היומן */
 .panel { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+/* שורת הכותרת של קופסה: הכותרת בצד אחד והכפתור בצד השני */
 .panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+/* מסירים את הרווח התחתון מהכותרת בתוך השורה הזאת */
 .panel-head h2 { margin: 0; }
 
+/* הטבלה תופסת את כל הרוחב, והקווים בין התאים מתחברים */
 table { width: 100%; border-collapse: collapse; }
+/* כל התאים: רווח פנימי וקו תחתון */
 th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--border); }
+/* תאי הכותרת: קטנים ובצבע עדין */
 th { color: var(--muted); font-size: .8rem; font-weight: 600; }
+/* הלוחית מוצגת בגופן שבו לכל תו אותו רוחב, כדי שהספרות יהיו מסודרות וקריאות */
 td.plate {
   font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 700; letter-spacing: 1px;
 }
+/* טקסט עדין שמרוכז באמצע (ההודעה "החניון ריק") */
 .muted { color: var(--muted); text-align: center; }
 
+/* רשימת האירועים: בלי נקודות, ובגודל טקסט קטן */
 ul { list-style: none; margin: 0; padding: 0; font-size: .9rem; }
+/* כל אירוע ברשימה: רווח וקו תחתון. pre-wrap שומר על הרווחים שבטקסט */
 li { padding: 6px 0; border-bottom: 1px solid var(--border); white-space: pre-wrap; }
 
+/* ההודעה הקטנה שקופצת: קבועה בתחתית המסך ובאמצע, מעל כל השאר */
 .toast {
   position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
   background: var(--ok); color: #fff; padding: 10px 20px; border-radius: 8px; z-index: 10;
 }
+/* כשזו הודעת שגיאה, היא אדומה */
 .toast.error { background: var(--bad); }
 
+/* ההודעה של ההפתעה החבויה: באמצע המסך, ירוק על שחור */
 .easter {
   position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
   background: #000; color: #0f0; padding: 24px 32px; border-radius: 12px;
   font-size: 1.3rem; z-index: 20; text-align: center; border: 2px solid #0f0;
 }
+/* אפקט ההפתעה: כל הצבעים בדף מסתובבים בלי הפסקה */
 body.warp { animation: warp 0.6s linear infinite; }
+/* ההגדרה של הסיבוב: מעבר סביב כל גלגל הצבעים */
 @keyframes warp { from { filter: hue-rotate(0deg); } to { filter: hue-rotate(360deg); } }
 
+/* במסך צר (כמו טלפון) מסתירים את העמודה "Entered" כדי שהטבלה תיכנס */
 @media (max-width: 600px) { th:nth-child(2), td:nth-child(2) { display: none; } }
