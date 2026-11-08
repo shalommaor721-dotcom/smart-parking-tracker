@@ -35,7 +35,7 @@ services:
   api:
     # בונים אותה בעצמנו לפי ההוראות שבקובץ Dockerfile שבתיקייה api
     build: ./api
-    # השם שיקבל התוצר שנבנה
+    #  image השם שיקבל התוצר שנבנה 
     image: smart-parking-api
     # השם שיופיע בדוקר לתוכנית הזאת
     container_name: parking-api
