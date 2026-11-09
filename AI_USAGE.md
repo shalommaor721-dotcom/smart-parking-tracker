@@ -26,4 +26,3 @@ We re-ran the same test and got the correct `Car is already inside`.
 - API tested with `curl`: valid plate (201), invalid plate (400), duplicate (409), full lot (409), release with fee.
 - Redis persistence: data was still there after restarting Redis with AOF enabled.
 
-> ✏️ **Team:** if you find another mistake the AI made while you work, add it here too - the lecturer wants at least one real example from your own work.
