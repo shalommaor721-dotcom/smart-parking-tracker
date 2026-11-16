@@ -227,35 +227,27 @@ try { saved = localStorage.getItem('theme') || 'light'; } catch (_) { /* ignore 
 // ומפעילים אותו
 applyTheme(saved);
 
-/// ---------- ההפתעה החבויה ----------
-// שימוש ב-e.code מבטיח שהקוד יעבוד גם כשהמקלדת בעברית או על Caps Lock
-const KONAMI = [
-  'ArrowUp', 'ArrowUp',
-  'ArrowDown', 'ArrowDown',
-  'ArrowLeft', 'ArrowRight',
-  'ArrowLeft', 'ArrowRight',
-  'KeyB', 'KeyA'
-];
-
+// ---------- ההפתעה החבויה (גרסה מקוצרת) ----------
+// רצף ההפעלה: פעמיים למעלה, פעמיים למטה
+const KONAMI = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown'];
 let konamiPos = 0;
 
 document.addEventListener('keydown', (e) => {
-  // מתעלמים אם המשתמש מקליד כרגע בתוך תיבת טקסט (כמו לוחית רישוי)
+  // מתעלמים אם מקלידים כרגע בתוך תיבת טקסט
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
   if (e.code === KONAMI[konamiPos]) {
     konamiPos++;
   } else {
-    // אם המקש שגוי, בודקים אם הוא במקרה תחילת הרצף (ArrowUp) כדי לא לאבד מומנטום
     konamiPos = (e.code === KONAMI[0]) ? 1 : 0;
   }
 
-  // אם סיימנו את כל הרצף בהצלחה
+  // אם סיימנו את כל הרצף (4 לחיצות)
   if (konamiPos === KONAMI.length) {
     konamiPos = 0;
     document.body.classList.add('warp');
     
-    const easterEl = document.getElementById('easter'); // בטוח יותר מ-$ אם לא הוגדר קיצור
+    const easterEl = document.getElementById('easter');
     if (easterEl) easterEl.classList.remove('hidden');
 
     setTimeout(() => {
