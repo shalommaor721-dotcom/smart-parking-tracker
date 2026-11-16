@@ -69,7 +69,7 @@ curl -X POST localhost:3000/api/plates -H "Content-Type: application/json" -d '{
 - **Full Capacity Alert:** red flashing banner + capacity bar when the lot (8 bays) is full; new cars get rejected and logged.
 - **"Release" button** per car - charges the fee and adds it to the revenue counter.
 - **Dark Mode** button (remembered in the browser).
-- **Easter egg:** on the dashboard type the Konami code: `↑ ↑ ↓ ↓ ← → ← → B A` 🛸
+- **Easter egg:** on the dashboard type the Konami code: aa bb ` 🛸
 
 ## Data persistence demo (Volume)
 
