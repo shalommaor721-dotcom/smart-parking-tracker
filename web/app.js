@@ -227,28 +227,40 @@ try { saved = localStorage.getItem('theme') || 'light'; } catch (_) { /* ignore 
 // ומפעילים אותו
 applyTheme(saved);
 
-// ---------- ההפתעה החבויה ----------
-// אם מקלידים בדיוק את הרצף חץ למעלה, חץ למעלה, חץ למטה, חץ למטה, שמאלה, ימינה, שמאלה, ימינה, B, A
-// מופיעה הפתעה למשך 4 שניות
-const KONAMI = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
-// סופר כמה מקשים נכונים הוקלדו ברצף עד עכשיו
+/// ---------- ההפתעה החבויה ----------
+// שימוש ב-e.code מבטיח שהקוד יעבוד גם כשהמקלדת בעברית או על Caps Lock
+const KONAMI = [
+  'ArrowUp', 'ArrowUp',
+  'ArrowDown', 'ArrowDown',
+  'ArrowLeft', 'ArrowRight',
+  'ArrowLeft', 'ArrowRight',
+  'KeyB', 'KeyA'
+];
+
 let konamiPos = 0;
-// בכל לחיצה על מקש במקלדת
+
 document.addEventListener('keydown', (e) => {
-  // אם זה המקש הנכון הבא ברצף, מתקדמים. אם טעינו, מתחילים מההתחלה
-  konamiPos = e.key === KONAMI[konamiPos] ? konamiPos + 1 : 0;
-  // אם סיימנו את כל הרצף
+  // מתעלמים אם המשתמש מקליד כרגע בתוך תיבת טקסט (כמו לוחית רישוי)
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+  if (e.code === KONAMI[konamiPos]) {
+    konamiPos++;
+  } else {
+    // אם המקש שגוי, בודקים אם הוא במקרה תחילת הרצף (ArrowUp) כדי לא לאבד מומנטום
+    konamiPos = (e.code === KONAMI[0]) ? 1 : 0;
+  }
+
+  // אם סיימנו את כל הרצף בהצלחה
   if (konamiPos === KONAMI.length) {
-    // מאפסים כדי שאפשר יהיה להפעיל שוב
     konamiPos = 0;
-    // מפעילים אפקט צבעים מסתובבים על הדף
     document.body.classList.add('warp');
-    // ומציגים את ההודעה
-    $('easter').classList.remove('hidden');
-    // אחרי 4 שניות מכבים הכול
+    
+    const easterEl = document.getElementById('easter'); // בטוח יותר מ-$ אם לא הוגדר קיצור
+    if (easterEl) easterEl.classList.remove('hidden');
+
     setTimeout(() => {
       document.body.classList.remove('warp');
-      $('easter').classList.add('hidden');
+      if (easterEl) easterEl.classList.add('hidden');
     }, 4000);
   }
 });
