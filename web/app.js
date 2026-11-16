@@ -231,7 +231,7 @@ applyTheme(saved);
 
 // מערך המגדיר את רצף המקשים הסודי להפעלת ההפתעה: פעמיים חץ למעלה, פעמיים חץ למטה
 // שימוש בשמות פיזיים של מקשים (e.code) מבטיח שהקוד יעבוד גם כשהמקלדת בעברית או עם Caps Lock
-const KONAMI = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown'];
+const KONAMI = ['KeyA', 'KeyA', 'KeyB', 'KeyB'];;
 
 // משתנה העוקב אחרי ההתקדמות ברצף (סופר כמה מקשים נכונים הוקשו ברציפות עד עכשיו)
 let konamiPos = 0;
